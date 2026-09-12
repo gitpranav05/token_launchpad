@@ -1,11 +1,12 @@
+import { Launchpad } from "./components/Launchpad"
 
 
 function App() {
 
   return (
-   <div>
-    <h1>
-      Token Launchpad
+   <div className="">
+    <h1 >
+      <Launchpad/>
     </h1>
    </div>
   )
