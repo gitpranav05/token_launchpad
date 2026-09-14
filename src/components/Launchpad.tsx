@@ -12,18 +12,20 @@ import { createInitializeInstruction, pack } from "@solana/spl-token-metadata";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
 
-export function Launchpad() {
-  const wallet = useWallet();
-  //   console.log(wallet.publicKey);
-  const { connection } = useConnection();
+export default function Launchpad() {
 
-  async function createToken() {
+  const wallet = useWallet();
+  const {connection} = useConnection();
+
+  async function createToken(){
     const publicKey = wallet.publicKey;
     if (!publicKey) return;
 
     const name = (document.getElementById("name") as HTMLInputElement).value;
     const symbol = (document.getElementById("symbol") as HTMLInputElement).value;
     const imageUrl = (document.getElementById("imageUrl") as HTMLInputElement).value;
+    const initialSupply = parseInt((document.getElementById("initialSupply") as HTMLInputElement).value);
+
     const keypair = Keypair.generate();
 
     const metadata = {
@@ -31,13 +33,13 @@ export function Launchpad() {
       name: name,
       symbol: symbol,
       uri: imageUrl,
-      additionalMetadata: [],
-    };
-      
+      additionalMetadata: [["initialSupply", String(initialSupply)] as [string, string]],
+    }
+
     const mintLen = getMintLen([ExtensionType.MetadataPointer]);
     const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
 
-    const lamports = await connection.getMinimumBalanceForRentExemption(
+     const lamports = await connection.getMinimumBalanceForRentExemption(
       mintLen + metadataLen,
     );
     const transaction = new Transaction().add(
@@ -62,7 +64,7 @@ export function Launchpad() {
         null,
         TOKEN_2022_PROGRAM_ID,
       ),
-      createInitializeInstruction({
+      createInitializeInstruction({ 
         programId: TOKEN_2022_PROGRAM_ID,
         mint: keypair.publicKey,
         metadata: keypair.publicKey,
@@ -80,9 +82,12 @@ export function Launchpad() {
     console.log(keypair);
     transaction.partialSign(keypair);
 
-    const res   = await wallet.sendTransaction(transaction, connection);
+    let res = await wallet.sendTransaction(transaction, connection);
     console.log(res);
+
+
   }
+
 
   return (
     <main className="flex min-h-screen min-w-80 flex-col items-center justify-center  text-center font-sans leading-6 font-normal text-white/85 antialiased">
@@ -108,7 +113,7 @@ export function Launchpad() {
       <input
         id="initialSupply"
         className="mt-5 w-75 py-5 pl-2.5"
-        type="text"
+        type="number"
         placeholder="Initial Supply"
       />
       <button
@@ -118,5 +123,5 @@ export function Launchpad() {
         Create a token
       </button>
     </main>
-  );
+  )
 }
