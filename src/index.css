@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+body {
+  @apply min-w-80 bg-zinc-950 font-sans antialiased text-zinc-100;
+}
+
+.wallet-adapter-button {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  height: 2.625rem !important;
+  padding: 0 1.25rem !important;
+  font-size: 0.8125rem !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25) !important;
+}
+
+.wallet-adapter-button:hover:not([disabled]) {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1) !important;
+  transform: translateY(-1px);
+}
+
+.wallet-adapter-dropdown-list {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  color: #e4e4e7 !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background-color: #27272a !important;
+}
+
