@@ -20,6 +20,7 @@ import {
   parseTokenAmount,
   truncateAddress,
 } from "../lib/token";
+import { triggerMintConfetti } from "../lib/confetti";
 
 interface MinterProps {
   defaultMintAddress?: string;
@@ -333,6 +334,9 @@ export function Minter({
 
       await confirmTransactionPolling(signature, connection);
 
+      // Trigger celebratory confetti burst!
+      triggerMintConfetti();
+
       setLastTxSignature(signature);
       setLastMintedDetails({
         amount: trimmedAmount,
@@ -385,39 +389,33 @@ export function Minter({
 
       {/* Success Notification Banner */}
       {lastTxSignature && lastMintedDetails && (
-        <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-teal-950/40 via-zinc-900/60 to-emerald-900/20 border border-teal-500/40 shadow-xl backdrop-blur-sm">
-          <div className="flex items-start gap-3.5">
-            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+        <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-teal-950/60 via-zinc-900/80 to-emerald-950/50 border border-teal-500/50 shadow-2xl backdrop-blur-md animate-float relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-teal-500/20 rounded-full blur-2xl pointer-events-none animate-pulse-glow" />
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 text-zinc-950 shadow-lg shadow-teal-500/30 flex-shrink-0 animate-bounce">
+              <span className="text-xl">🪙</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-base font-semibold text-white">
-                Tokens Successfully Minted!
-              </h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-base font-bold text-white">
+                  Tokens Successfully Minted! 🎉
+                </h4>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 animate-pulse">
+                  DEVNET CONFIRMED
+                </span>
+              </div>
               <p className="text-xs text-zinc-300 mt-1">
                 Minted{" "}
-                <span className="font-semibold text-teal-300">
+                <span className="font-bold text-teal-300 text-sm">
                   {lastMintedDetails.amount}
                 </span>{" "}
-                tokens to recipient{" "}
-                <span className="font-mono text-zinc-200">
+                tokens directly into recipient wallet{" "}
+                <span className="font-mono text-zinc-200 bg-zinc-800/80 px-1.5 py-0.5 rounded">
                   {truncateAddress(lastMintedDetails.recipient, 6)}
                 </span>
               </p>
 
-              <div className="mt-3 flex items-center gap-2 bg-black/40 p-2.5 rounded-lg border border-zinc-800 text-xs text-zinc-300">
+              <div className="mt-3 flex items-center gap-2 bg-black/50 p-2.5 rounded-xl border border-zinc-800/80 text-xs text-zinc-300 backdrop-blur-sm">
                 <span className="text-zinc-500 select-none">Signature:</span>
                 <span className="truncate flex-1 font-mono text-teal-400">
                   {lastTxSignature}
@@ -426,7 +424,7 @@ export function Minter({
                   href={getExplorerUrl(lastTxSignature, "tx", "devnet")}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2 py-1 text-xs bg-teal-600/30 hover:bg-teal-600/50 text-teal-300 rounded transition flex items-center gap-1 font-sans"
+                  className="px-2.5 py-1 text-xs bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 rounded-lg transition flex items-center gap-1 font-medium hover:scale-105 active:scale-95 duration-150"
                 >
                   View on Explorer
                   <svg
@@ -608,13 +606,18 @@ export function Minter({
 
           {/* Amount to Mint */}
           <div>
-            <label
-              htmlFor="mint-amount"
-              className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5"
-            >
-              Amount to Mint <span className="text-rose-400">*</span>
-            </label>
-            <div className="flex gap-2">
+            <div className="flex items-center justify-between mb-1.5">
+              <label
+                htmlFor="mint-amount"
+                className="block text-xs font-semibold uppercase tracking-wider text-zinc-400"
+              >
+                Amount to Mint <span className="text-rose-400">*</span>
+              </label>
+              <span className="text-[11px] text-teal-400 font-mono">
+                Decimals: {tokenDecimals}
+              </span>
+            </div>
+            <div className="space-y-2">
               <input
                 id="mint-amount"
                 type="text"
@@ -622,20 +625,28 @@ export function Minter({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="100"
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950/70 border border-zinc-700/70 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-zinc-500 text-sm transition outline-none"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950/70 border border-zinc-700/70 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-zinc-500 text-sm font-mono transition outline-none"
                 required
               />
-              <div className="flex items-center gap-1.5">
-                {["100", "1000", "5000"].map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => setAmount(preset)}
-                    className="cursor-pointer px-2.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs transition"
-                  >
-                    +{preset}
-                  </button>
-                ))}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] text-zinc-500 font-medium">Quick Presets:</span>
+                {["100", "1,000", "10,000", "100,000", "1,000,000"].map((preset) => {
+                  const rawVal = preset.replace(/,/g, "");
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setAmount(rawVal)}
+                      className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-mono font-medium border transition-all duration-150 hover:scale-105 active:scale-95 ${
+                        amount === rawVal
+                          ? "bg-teal-500/20 border-teal-500/60 text-teal-300 shadow-sm shadow-teal-500/20"
+                          : "bg-zinc-800/80 hover:bg-zinc-700/90 border-zinc-700/60 text-zinc-300"
+                      }`}
+                    >
+                      +{preset}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -663,7 +674,7 @@ export function Minter({
           {/* Status Message */}
           {statusMessage && (
             <div
-              className={`p-3.5 rounded-xl text-xs flex items-start gap-2 border ${
+              className={`p-3.5 rounded-xl text-xs flex items-start gap-2 border transition-all duration-200 ${
                 statusType === "error"
                   ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
                   : statusType === "success"
@@ -682,29 +693,24 @@ export function Minter({
           <button
             type="submit"
             disabled={isMinting || !wallet.publicKey}
-            className="w-full cursor-pointer py-3.5 px-6 rounded-xl font-semibold text-sm text-zinc-950 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 hover:from-teal-300 hover:via-emerald-300 hover:to-cyan-300 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-teal-500/20 transition duration-150 flex items-center justify-center gap-2"
+            className="w-full cursor-pointer py-3.5 px-6 rounded-xl font-bold text-sm text-zinc-950 bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-400 hover:from-teal-300 hover:via-emerald-300 hover:to-cyan-300 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-teal-500/25 transition-all duration-200 flex items-center justify-center gap-2 group relative overflow-hidden"
           >
             {isMinting ? (
               <>
-                <div className="w-4 h-4 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-                <span>Minting Tokens to Recipient…</span>
+                <span className="text-base animate-spin">🪙</span>
+                <span className="font-semibold tracking-wide">
+                  Minting Tokens on Solana Devnet…
+                </span>
               </>
             ) : (
               <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <span>Mint Tokens to Recipient</span>
+                <span className="text-base transition-transform duration-200 group-hover:scale-125 group-hover:rotate-12">
+                  🪙
+                </span>
+                <span className="tracking-wide">Mint Tokens to Recipient</span>
+                <span className="text-base transition-transform duration-200 group-hover:translate-x-1">
+                  ✨
+                </span>
               </>
             )}
           </button>

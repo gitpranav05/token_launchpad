@@ -63,16 +63,24 @@ function LaunchpadDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-violet-500 selection:text-white">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-violet-500 selection:text-white relative overflow-x-hidden">
+      {/* Ambient Animated Aurora Background Lights */}
+      <div className="fixed -top-40 -left-40 w-[38rem] h-[38rem] rounded-full bg-violet-600/15 blur-[120px] pointer-events-none animate-pulse-glow z-0" />
+      <div className="fixed -bottom-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-teal-500/10 blur-[130px] pointer-events-none animate-float-reverse z-0" />
+      <div className="fixed top-1/3 left-1/4 w-[30rem] h-[30rem] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none animate-float z-0" />
+      
+      {/* Cyberpunk Grid Background */}
+      <div className="fixed inset-0 bg-grid-pattern opacity-25 pointer-events-none z-0" />
+
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-lg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-zinc-950/75 backdrop-blur-xl transition-all">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between relative z-10">
           {/* Logo / Branding */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-teal-400 p-0.5 flex items-center justify-center shadow-lg shadow-violet-500/20">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-teal-400 p-0.5 flex items-center justify-center shadow-lg shadow-violet-500/25 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
               <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-teal-400"
+                  className="w-5 h-5 text-teal-400 transition-transform duration-300 group-hover:scale-110"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -88,11 +96,14 @@ function LaunchpadDashboard() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold tracking-tight text-white">
+                <h1 className="text-base font-bold tracking-tight text-white group-hover:text-violet-200 transition-colors">
                   Solana Launchpad
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-500/10 text-violet-400 border border-violet-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-500/10 text-violet-400 border border-violet-500/30 flex items-center gap-1.5 shadow-sm">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
+                  </span>
                   Devnet
                 </span>
               </div>
@@ -105,9 +116,9 @@ function LaunchpadDashboard() {
           {/* Right Header: Balance & Wallet */}
           <div className="flex items-center gap-3">
             {wallet.publicKey && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs shadow-md backdrop-blur-md">
                 <span className="text-zinc-500">Devnet SOL:</span>
-                <span className="font-mono font-medium text-emerald-400">
+                <span className="font-mono font-bold text-emerald-400">
                   {solBalance !== null ? solBalance.toFixed(3) : "..."} SOL
                 </span>
                 <button
@@ -115,7 +126,7 @@ function LaunchpadDashboard() {
                   onClick={fetchBalance}
                   title="Refresh Devnet Balance"
                   disabled={isRefreshingBalance}
-                  className="p-1 text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
+                  className="p-1 text-zinc-400 hover:text-zinc-200 hover:scale-110 active:scale-95 transition-all cursor-pointer"
                 >
                   <svg
                     className={`w-3.5 h-3.5 ${isRefreshingBalance ? "animate-spin" : ""}`}
@@ -248,19 +259,21 @@ function LaunchpadDashboard() {
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex items-center justify-center mb-8">
-          <div className="inline-flex p-1 rounded-xl bg-zinc-900/90 border border-zinc-800 shadow-lg">
+        <div className="flex items-center justify-center mb-8 relative z-10">
+          <div className="inline-flex p-1.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-xl backdrop-blur-md">
             <button
               type="button"
               onClick={() => setActiveTab("launch")}
-              className={`cursor-pointer px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2 ${
+              className={`cursor-pointer px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-2 hover:scale-[1.03] active:scale-[0.97] ${
                 activeTab === "launch"
-                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-600/35 ring-1 ring-violet-400/40"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
               }`}
             >
               <svg
-                className="w-4 h-4"
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  activeTab === "launch" ? "rotate-6 scale-110" : ""
+                }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -278,14 +291,16 @@ function LaunchpadDashboard() {
             <button
               type="button"
               onClick={() => setActiveTab("mint")}
-              className={`cursor-pointer px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2 ${
+              className={`cursor-pointer px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-2 hover:scale-[1.03] active:scale-[0.97] ${
                 activeTab === "mint"
-                  ? "bg-gradient-to-r from-teal-500 to-emerald-600 text-zinc-950 shadow-md shadow-teal-500/30"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-gradient-to-r from-teal-400 to-emerald-500 text-zinc-950 shadow-lg shadow-teal-500/35 ring-1 ring-teal-300/50"
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
               }`}
             >
               <svg
-                className="w-4 h-4"
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  activeTab === "mint" ? "rotate-12 scale-110" : ""
+                }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -299,7 +314,10 @@ function LaunchpadDashboard() {
               </svg>
               <span>2. Mint to Address</span>
               {selectedMintForMinter && (
-                <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
+                <span className="flex h-2 w-2 relative ml-1">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
+                </span>
               )}
             </button>
           </div>

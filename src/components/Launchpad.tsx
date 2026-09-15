@@ -18,6 +18,7 @@ import {
   saveStoredToken,
   truncateAddress,
 } from "../lib/token";
+import { triggerSuccessConfetti } from "../lib/confetti";
 
 interface LaunchpadProps {
   onTokenCreated?: (token: CreatedToken) => void;
@@ -228,8 +229,9 @@ export default function Launchpad({
 
       setStatusType("success");
       setStatusMessage(
-        `Token "${tokenName}" (${tokenSymbol}) launched successfully!`
+        `🎉 Token "${tokenName}" (${tokenSymbol}) launched successfully on Devnet!`
       );
+      triggerSuccessConfetti();
     } catch (err: unknown) {
       console.error("Token creation error:", err);
       if (err && typeof err === "object") {
@@ -384,8 +386,63 @@ export default function Launchpad({
       )}
 
       {/* Main Creation Card */}
-      <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl">
-        <form onSubmit={createToken} className="space-y-5">
+      <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-teal-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Live Animated Holographic Token Preview Badge */}
+        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-violet-950/40 via-zinc-900/60 to-teal-950/40 border border-violet-500/20 shimmer-wrapper shadow-lg flex items-center justify-between gap-4 animate-float">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="relative flex-shrink-0">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-zinc-950 border border-violet-500/40 flex items-center justify-center p-0.5 shadow-md shadow-violet-500/20">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="Token Preview"
+                    className="w-full h-full object-cover rounded-[14px]"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-violet-600 via-indigo-600 to-teal-400 flex items-center justify-center text-white font-bold text-lg animate-pulse-glow">
+                    {symbol ? symbol.slice(0, 2) : "🪙"}
+                  </div>
+                )}
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-zinc-900 flex items-center justify-center text-[9px] text-zinc-950 font-bold">
+                ✓
+              </span>
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                  {name || "Your Token Name"}
+                </h4>
+                <span className="px-2 py-0.5 rounded-md bg-violet-500/20 border border-violet-500/30 text-violet-300 font-mono text-xs font-semibold">
+                  ${symbol || "SYMBOL"}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-0.5 flex items-center gap-2">
+                <span>Standard: <strong className="text-zinc-300">Token-2022</strong></span>
+                <span>•</span>
+                <span>Decimals: <strong className="text-zinc-300">{decimals}</strong></span>
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden sm:flex flex-col items-end text-right flex-shrink-0">
+            <span className="text-[10px] uppercase font-semibold tracking-wider text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping" />
+              Live Preview
+            </span>
+            <span className="text-[11px] text-zinc-500 mt-1">Updates in real time</span>
+          </div>
+        </div>
+
+        <form onSubmit={createToken} className="space-y-5 relative">
           {/* Row 1: Name & Symbol */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -547,29 +604,24 @@ export default function Launchpad({
           <button
             type="submit"
             disabled={isSubmitting || !wallet.publicKey}
-            className="w-full cursor-pointer py-3.5 px-6 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:via-indigo-500 hover:to-purple-500 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-violet-600/25 transition duration-150 flex items-center justify-center gap-2"
+            className="w-full group cursor-pointer py-3.5 px-6 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-violet-600 via-indigo-600 to-teal-500 hover:from-violet-500 hover:via-indigo-500 hover:to-teal-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-xl shadow-violet-600/25 hover:shadow-violet-500/40 transition-all duration-200 flex items-center justify-center gap-2.5 relative overflow-hidden"
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Deploying Token on Devnet…</span>
+                <span className="text-xl animate-bounce">🚀</span>
+                <span className="font-semibold tracking-wide animate-pulse">
+                  Deploying Token to Solana Devnet…
+                </span>
               </>
             ) : (
               <>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                <span>Deploy Token</span>
+                <span className="text-lg group-hover:rotate-12 group-hover:scale-125 transition-transform duration-200">
+                  ✨
+                </span>
+                <span className="tracking-wide">Deploy Token</span>
+                <span className="text-xs opacity-75 group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
               </>
             )}
           </button>
